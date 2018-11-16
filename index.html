@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<head>
+<title>Panel Swipe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="_css/jquery.mobile.css">
+<link rel="stylesheet" href="_css/sheridan.css">
+<link href="_css/port.css" rel="stylesheet" 
+				media="screen and (orientation: portrait)" />
+<link href="_css/land.css" rel="stylesheet" 
+				media="screen and (orientation: landscape)" />
+
+<script src="_js/jquery.js"></script>
+<script src="_js/jquery.mobile.js"></script>
+<script>
+$(document).on("pagecreate", "#mypage", function() {
+   $( document ).on( "swipeleft swiperight", "#mypage", function( e ) {
+      if ( $( ".ui-page-active" ).jqmData( "panel" ) !== "open" ) {
+         if ( e.type === "swipeleft" ) {
+            $( "#right-panel" ).panel( "open" );
+         } else if ( e.type === "swiperight" ) {
+            $( "#left-panel" ).panel( "open" );
+         }
+      }
+   });
+});
+</script>
+</head>
+<body>
+<div data-role="page" id="mypage">
+   <div data-role="header" id="mhead" data-theme="a">
+      <h2>SHERIDAN COLLEGE</h2>
+   </div>
+   <div role="main" class="ui-content">
+		<div class="ui-grid-a">
+			<section class="ui-block-a">
+				<a href="#left-panel" class="ui-btn ui-icon-carat-l ui-btn-icon-left">Contact Us<br>(Click or Swipe)</a>
+			</section>
+			<section>
+				<a href="#right-panel" class="ui-btn ui-icon-carat-r ui-btn-icon-right">Phone Status<br>(Click or Swipe)</a>
+			</section>
+		</div>
+		<hr>
+		
+
+   </div>
+	 
+	 <!-- Panels -->
+   <div data-role="panel" id="left-panel" data-theme="a">
+      <a href="tel:9054597533" class="ui-btn ui-icon-phone ui-btn-icon-top">Call Us</a>
+			<a href="mailto:help@sheridancollege.ca?subject=Technical%20Inquiry"
+						class="ui-btn ui-icon-mail ui-btn-icon-top">Email Us</a>
+			<a href="sms:9054597533?body=Technical%20Inquiry"
+						class="ui-btn ui-icon-comment ui-btn-icon-top">Text Us</a>
+						
+      <a href="#" data-rel="close" class="ui-btn ui-icon-delete ui-btn-icon-notext">Close</a>
+   </div> <!-- end of left panel -->
+	 
+   <div data-role="panel" id="right-panel" data-display="push" data-position="right" data-theme="a">
+			<a href="#" class="ui-btn ui-icon-eye ui-btn-icon-top"
+					id="devlight">Tap for device light value</a>
+			<h3 id="lightOut"></h3>
+	 
+			<a href="#" class="ui-btn ui-icon-power ui-btn-icon-top"
+					id="battery">Tap for battery status</a>
+			<h3 id="bCharging"></h3>
+			<h3 id="bLevel"></h3>
+			<h3 id="bChargeTime"></h3>
+			<h3 id="bDischargeTime"></h3>
+
+			<a href="#" class="ui-btn ui-icon-action ui-btn-icon-top"
+							id="vibrate">Tap to send SOS</a>
+			
+      <a href="#" style="text-align: center;" data-rel="close" class="ui-btn ui-icon-delete ui-btn-icon-notext">Close</a>
+   </div> <!-- end of right panel -->
+</div>
+
+	<script>
+		$(document).ready(function() {
+			$("#vibrate").tap(function() {
+				if (window.navigator.vibrate) { 
+					dot = 200;      // Length of a Morse Code "dot" in milliseconds
+					dash = 500;     // Length of a Morse Code "dash" in milliseconds
+					gap = 200;    	// Length of Gap Between dots/dashes
+
+					//navigator.vibrate(2000);	// 2 seconds
+					navigator.vibrate([dot, gap, dot, gap, dot, gap, dash, gap, dash, gap, dash, gap, dot, gap, dot, gap, dot, gap]);
+				}
+				else {alert("cannot vibrate");}
+			});
+						
+			$("#devlight").tap(function() {
+				window.addEventListener('devicelight', function(e) {
+					//alert(e.value);
+					$("#lightOut").html(e.value);
+					// < 400 - Indoor; 400-1000 - Office lighting; > 10000 - Outdoor
+					if (e.value > 1000) {$("#lightOut").css("background", "red");}
+					else if (e.value >= 400 && e.value <= 1000) {$("#lightOut").css("background", "lightblue");}
+					else if (e.value < 400) {$("#lightOut").css("background", "yellow");}
+				});
+			});				
+			
+			$("#battery").tap(function() {
+				navigator.getBattery().then(function(battery) {
+					function updateAllBatteryInfo(){
+						updateChargeInfo();
+						updateLevelInfo();
+						updateChargingInfo();
+						updateDischargingInfo();
+					}
+					updateAllBatteryInfo();
+					
+					// Functions
+					function updateChargeInfo(){
+						$("#bCharging").html("Battery charging? "
+												+ (battery.charging ? "Yes" : "No"));
+					}
+
+					function updateLevelInfo(){
+						$("#bLevel").html("Battery level: "
+												+ battery.level * 100 + "%");
+					}
+					
+					function updateChargingInfo(){
+						$("#bChargeTime").html("Battery charging time: "
+												 + battery.chargingTime + " seconds");
+					}
+
+					function updateDischargingInfo(){
+						$("#bDischargeTime").html("Battery discharging time: "
+												 + battery.dischargingTime + " seconds");
+					}
+
+					// Event Listeners
+					battery.addEventListener('chargingchange', function(){
+						updateChargeInfo();
+					});
+					battery.addEventListener('levelchange', function(){
+						updateLevelInfo();
+					});
+					battery.addEventListener('chargingtimechange', function(){
+						updateChargingInfo();
+					});
+					battery.addEventListener('dischargingtimechange', function(){
+						updateDischargingInfo();
+					});
+
+
+				});
+			});			
+		});
+	</script>
+</body>
+</html>
